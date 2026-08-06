@@ -1,0 +1,26 @@
+# Holox SPA (React Router por path) en Apache/Hostinger.
+# Sirve index.html para cualquier ruta que no sea un archivo/carpeta real,
+# así /login, /c/vida-yoga/reservar, /c/:slug/resena/:token, etc. cargan la app.
+DirectoryIndex index.html
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  # Si el archivo o carpeta existe, se sirve tal cual (assets, manifest, sw, etc.).
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  # Cualquier otra ruta → index.html (la app resuelve el routing en el cliente).
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# AUD-015: headers de seguridad. Los "enforced" son inofensivos (no rompen la app).
+# La CSP va en modo Report-Only a propósito: NO bloquea nada, solo reporta en la consola
+# del navegador. Cuando confirmemos que no hay violaciones, se cambia a "Content-Security-Policy".
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header always set Permissions-Policy "camera=(self), microphone=(), geolocation=()"
+  Header always set Content-Security-Policy-Report-Only "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; base-uri 'self'; frame-ancestors 'self'"
+</IfModule>
