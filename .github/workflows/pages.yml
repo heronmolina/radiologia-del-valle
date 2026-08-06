@@ -1,0 +1,37 @@
+name: Publicar en GitHub Pages
+
+# El builder "legacy" de Pages se quedó colgado en `building` con este repo
+# recién creado (>1 h sin avanzar). Este workflow publica el sitio por la vía
+# moderna (artifact + deploy-pages), que además es gratis en repos públicos.
+# El repo solo contiene el BUILD estático del POS de Radiología del Valle;
+# el código fuente vive en heronmolina/rdv-pos.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - name: Subir el sitio (la raíz del repo ES el sitio)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - id: deploy
+        uses: actions/deploy-pages@v4
