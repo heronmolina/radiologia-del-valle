@@ -1,0 +1,1 @@
+async function a(t,r){if(!r)return null;try{const e=await fetch(r);if(!e.ok)return null;const n=new Uint8Array(await e.arrayBuffer());try{return await t.embedPng(n)}catch{return await t.embedJpg(n)}}catch{return null}}export{a as embebirLogo};
